@@ -57,3 +57,35 @@ CREATE TABLE profiles (
     photo        varchar(255),
     country_code char(2)      NOT NULL REFERENCES countries (country_code)
 );
+
+CREATE TABLE libraries (
+    email varchar(120) PRIMARY KEY REFERENCES subscribers (email)
+);
+
+CREATE TABLE library_song (
+    email   varchar(120) NOT NULL REFERENCES libraries (email),
+    song_id integer      NOT NULL REFERENCES songs (song_id),
+    PRIMARY KEY (email, song_id)
+);
+
+CREATE TABLE library_album (
+    email    varchar(120) NOT NULL REFERENCES libraries (email),
+    album_id integer      NOT NULL REFERENCES albums (album_id),
+    PRIMARY KEY (email, album_id)
+);
+
+CREATE TABLE playlists (
+    playlist_id integer      PRIMARY KEY,
+    name        varchar(100) NOT NULL,
+    created_at  date         NOT NULL,
+    owner_email varchar(120) NOT NULL REFERENCES subscribers (email)
+);
+
+CREATE TABLE playlist_song (
+    playlist_id integer NOT NULL REFERENCES playlists (playlist_id),
+    song_id     integer NOT NULL REFERENCES songs (song_id),
+    position    integer NOT NULL CHECK (position > 0),
+    added_at    date    NOT NULL,
+    PRIMARY KEY (playlist_id, song_id),
+    UNIQUE (playlist_id, position)
+);
