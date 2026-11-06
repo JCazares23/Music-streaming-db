@@ -145,6 +145,26 @@ SELECT
      WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'ana@mail.com')) AS canciones_en_playlists;
 
 -- Eliminación exitosa: se borra el suscriptor con todo lo suyo sin tocar canciones, álbumes ni artistas.
+INSERT INTO playlists (playlist_id, name, created_at, owner_email)
+VALUES (15, 'Para correr', '2026-10-02', 'sofia@mail.com');
+INSERT INTO playlist_song (playlist_id, song_id, position, added_at) VALUES
+    (15, 105, 1, '2026-10-02'),
+    (15, 107, 2, '2026-10-02');
+INSERT INTO library_song (email, song_id)
+VALUES ('sofia@mail.com', 106);
+INSERT INTO library_album (email, album_id)
+VALUES ('sofia@mail.com', 203);
+
+SELECT
+    (SELECT COUNT(*) FROM subscribers WHERE email = 'sofia@mail.com') AS suscriptor,
+    (SELECT COUNT(*) FROM profiles WHERE email = 'sofia@mail.com') AS perfil,
+    (SELECT COUNT(*) FROM libraries WHERE email = 'sofia@mail.com') AS biblioteca,
+    (SELECT COUNT(*) FROM library_song WHERE email = 'sofia@mail.com') AS canciones_guardadas,
+    (SELECT COUNT(*) FROM library_album WHERE email = 'sofia@mail.com') AS albumes_guardados,
+    (SELECT COUNT(*) FROM playlists WHERE owner_email = 'sofia@mail.com') AS playlists,
+    (SELECT COUNT(*) FROM playlist_song
+     WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com')) AS canciones_en_playlists;
+
 SELECT
     (SELECT COUNT(*) FROM songs) AS canciones,
     (SELECT COUNT(*) FROM albums) AS albumes,
@@ -152,24 +172,24 @@ SELECT
 
 BEGIN;
 DELETE FROM playlist_song
-WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'luis@mail.com');
-DELETE FROM playlists WHERE owner_email = 'luis@mail.com';
-DELETE FROM library_song WHERE email = 'luis@mail.com';
-DELETE FROM library_album WHERE email = 'luis@mail.com';
-DELETE FROM libraries WHERE email = 'luis@mail.com';
-DELETE FROM profiles WHERE email = 'luis@mail.com';
-DELETE FROM subscribers WHERE email = 'luis@mail.com';
+WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com');
+DELETE FROM playlists WHERE owner_email = 'sofia@mail.com';
+DELETE FROM library_song WHERE email = 'sofia@mail.com';
+DELETE FROM library_album WHERE email = 'sofia@mail.com';
+DELETE FROM libraries WHERE email = 'sofia@mail.com';
+DELETE FROM profiles WHERE email = 'sofia@mail.com';
+DELETE FROM subscribers WHERE email = 'sofia@mail.com';
 COMMIT;
 
 SELECT
-    (SELECT COUNT(*) FROM subscribers WHERE email = 'luis@mail.com') AS suscriptor,
-    (SELECT COUNT(*) FROM profiles WHERE email = 'luis@mail.com') AS perfil,
-    (SELECT COUNT(*) FROM libraries WHERE email = 'luis@mail.com') AS biblioteca,
-    (SELECT COUNT(*) FROM library_song WHERE email = 'luis@mail.com') AS canciones_guardadas,
-    (SELECT COUNT(*) FROM library_album WHERE email = 'luis@mail.com') AS albumes_guardados,
-    (SELECT COUNT(*) FROM playlists WHERE owner_email = 'luis@mail.com') AS playlists,
+    (SELECT COUNT(*) FROM subscribers WHERE email = 'sofia@mail.com') AS suscriptor,
+    (SELECT COUNT(*) FROM profiles WHERE email = 'sofia@mail.com') AS perfil,
+    (SELECT COUNT(*) FROM libraries WHERE email = 'sofia@mail.com') AS biblioteca,
+    (SELECT COUNT(*) FROM library_song WHERE email = 'sofia@mail.com') AS canciones_guardadas,
+    (SELECT COUNT(*) FROM library_album WHERE email = 'sofia@mail.com') AS albumes_guardados,
+    (SELECT COUNT(*) FROM playlists WHERE owner_email = 'sofia@mail.com') AS playlists,
     (SELECT COUNT(*) FROM playlist_song
-     WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'luis@mail.com')) AS canciones_en_playlists;
+     WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com')) AS canciones_en_playlists;
 
 SELECT
     (SELECT COUNT(*) FROM songs) AS canciones,
