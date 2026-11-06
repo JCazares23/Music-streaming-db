@@ -112,3 +112,9 @@ INSERT INTO playlist_song (playlist_id, song_id, position, added_at) VALUES
     (14, 103, 1, '2026-06-20'),
     (14, 104, 2, '2026-06-21'),
     (14, 102, 3, '2026-06-22');
+
+INSERT INTO subscriptions (subscription_name, price, has_ads) VALUES
+    ('Estudiantes', 69.00, false);
+
+INSERT INTO artists (artist_id, artist_name, country_code) VALUES
+    (11, 'Natalia Lafourcade', 'MX');
