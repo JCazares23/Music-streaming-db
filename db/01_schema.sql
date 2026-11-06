@@ -38,3 +38,22 @@ CREATE TABLE song_album (
     PRIMARY KEY (album_id, song_id),
     UNIQUE (album_id, track_number)
 );
+
+CREATE TABLE subscriptions (
+    subscription_name varchar(30)  PRIMARY KEY,
+    price             decimal(6,2) NOT NULL CHECK (price >= 0),
+    has_ads           boolean      NOT NULL
+);
+
+CREATE TABLE subscribers (
+    email             varchar(120) PRIMARY KEY,
+    signup_date       date         NOT NULL,
+    subscription_name varchar(30)  NOT NULL REFERENCES subscriptions (subscription_name)
+);
+
+CREATE TABLE profiles (
+    email        varchar(120) PRIMARY KEY REFERENCES subscribers (email),
+    display_name varchar(50)  NOT NULL,
+    photo        varchar(255),
+    country_code char(2)      NOT NULL REFERENCES countries (country_code)
+);
