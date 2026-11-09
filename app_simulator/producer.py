@@ -101,5 +101,5 @@ while True:
     for duplicado in listos:
         producer.produce(topic, value=duplicado, on_delivery=reportar_duplicado)
 
-    producer.poll(0)
+    producer.flush()
     time.sleep(intervalo)
