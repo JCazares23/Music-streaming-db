@@ -13,3 +13,5 @@ RUN uv sync --locked
 
 COPY app_simulator/ app_simulator/
 COPY ingestion/ ingestion/
+
+RUN crontab ingestion/crontab
