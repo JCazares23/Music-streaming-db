@@ -50,6 +50,19 @@ services:
     depends_on: [postgres, kafka]
     restart: on-failure
 
+  consumer:
+    build: .
+    command: ["/app/.venv/bin/python", "ingestion/consumer.py"]
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+    volumes:
+      - crudo:/app/data
+      - logs:/app/logs
+    depends_on: [kafka]
+    restart: on-failure
+
 volumes:
   datos:
+  crudo:
   logs:
