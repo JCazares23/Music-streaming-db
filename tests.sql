@@ -31,7 +31,32 @@ LEFT JOIN (
 ) g ON g.email = sb.email
 ORDER BY sb.email, g.tipo, g.titulo;
 
--- Pregunta 5: no se puede responder, la base no guarda reproducciones; faltaría una tabla con cada reproducción (suscriptor, canción, fecha).
+-- Pregunta 5: la canción más escuchada desde siempre, sumando sus reproducciones de todos los días (si hay empate salen todas).
+SELECT s.song_id, s.title, SUM(d.num_rep) AS reproducciones
+FROM song_daily_play d
+JOIN songs s ON s.song_id = d.song_id
+GROUP BY s.song_id, s.title
+ORDER BY reproducciones DESC
+FETCH FIRST 1 ROWS WITH TIES;
+
+-- Top 100 semanal: la última semana completa, de lunes a domingo en UTC; la semana en curso no cuenta.
+SELECT s.song_id, s.title, SUM(d.num_rep) AS reproducciones
+FROM song_daily_play d
+JOIN songs s ON s.song_id = d.song_id
+WHERE d.play_date >= date_trunc('week', now() AT TIME ZONE 'UTC')::date - 7
+  AND d.play_date <  date_trunc('week', now() AT TIME ZONE 'UTC')::date
+GROUP BY s.song_id, s.title
+ORDER BY reproducciones DESC, s.song_id
+LIMIT 100;
+
+-- Las 20 canciones más escuchadas de un suscriptor desde siempre.
+SELECT s.song_id, s.title, p.num_rep AS reproducciones
+FROM subscriber_song_play p
+JOIN subscribers sb ON sb.subscriber_id = p.subscriber_id
+JOIN songs s        ON s.song_id = p.song_id
+WHERE sb.email = 'ana@mail.com'
+ORDER BY p.num_rep DESC, s.song_id
+LIMIT 20;
 
 -- PRIMARY KEY: cada canción tiene un identificador único.
 INSERT INTO songs (song_id, title, duration, genre)
@@ -154,6 +179,10 @@ INSERT INTO library_song (email, song_id)
 VALUES ('sofia@mail.com', 106);
 INSERT INTO library_album (email, album_id)
 VALUES ('sofia@mail.com', 203);
+INSERT INTO subscriber_song_play (subscriber_id, song_id, num_rep)
+SELECT subscriber_id, song_id, num_rep
+FROM subscribers, (VALUES (105, 3), (107, 1)) AS r (song_id, num_rep)
+WHERE email = 'sofia@mail.com';
 
 SELECT
     (SELECT COUNT(*) FROM subscribers WHERE email = 'sofia@mail.com') AS suscriptor,
@@ -163,14 +192,20 @@ SELECT
     (SELECT COUNT(*) FROM library_album WHERE email = 'sofia@mail.com') AS albumes_guardados,
     (SELECT COUNT(*) FROM playlists WHERE owner_email = 'sofia@mail.com') AS playlists,
     (SELECT COUNT(*) FROM playlist_song
-     WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com')) AS canciones_en_playlists;
+     WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com')) AS canciones_en_playlists,
+    (SELECT COUNT(*) FROM subscriber_song_play
+     WHERE subscriber_id = (SELECT subscriber_id FROM subscribers WHERE email = 'sofia@mail.com')) AS canciones_escuchadas;
 
 SELECT
     (SELECT COUNT(*) FROM songs) AS canciones,
     (SELECT COUNT(*) FROM albums) AS albumes,
     (SELECT COUNT(*) FROM artists) AS artistas;
 
+-- Sus reproducciones en subscriber_song_play se borran primero porque su FK apunta a subscribers.subscriber_id.
+-- ¿Cambia el top semanal al eliminar a un suscriptor? No: song_daily_play no guarda al suscriptor, así que sus reproducciones se quedan en los conteos por día.
 BEGIN;
+DELETE FROM subscriber_song_play
+WHERE subscriber_id = (SELECT subscriber_id FROM subscribers WHERE email = 'sofia@mail.com');
 DELETE FROM playlist_song
 WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com');
 DELETE FROM playlists WHERE owner_email = 'sofia@mail.com';
@@ -189,7 +224,9 @@ SELECT
     (SELECT COUNT(*) FROM library_album WHERE email = 'sofia@mail.com') AS albumes_guardados,
     (SELECT COUNT(*) FROM playlists WHERE owner_email = 'sofia@mail.com') AS playlists,
     (SELECT COUNT(*) FROM playlist_song
-     WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com')) AS canciones_en_playlists;
+     WHERE playlist_id IN (SELECT playlist_id FROM playlists WHERE owner_email = 'sofia@mail.com')) AS canciones_en_playlists,
+    (SELECT COUNT(*) FROM subscriber_song_play
+     WHERE subscriber_id = (SELECT subscriber_id FROM subscribers WHERE email = 'sofia@mail.com')) AS canciones_escuchadas;
 
 SELECT
     (SELECT COUNT(*) FROM songs) AS canciones,
