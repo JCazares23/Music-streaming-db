@@ -55,6 +55,7 @@ ingestion/
   crontab              corre processor.py cada 5 minutos
   verify.py            compara sent.log contra los conteos de la base
 .env.example           plantilla de variables
+.gitattributes         fin de línea LF al clonar, para que cron lea el crontab también en Windows
 .gitignore
 .python-version
 Dockerfile             imagen de Python con uv y cron para producer, consumer y processor
